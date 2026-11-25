@@ -21,6 +21,9 @@ def main() -> int:
         print("invalid: line must be a single line with no leading/trailing whitespace",
               file=sys.stderr)
         return 1
+    if not LINE.isprintable():
+        print("invalid: line must contain only printable characters", file=sys.stderr)
+        return 1
     os.makedirs("/output", exist_ok=True)
     with open("/output/entry.txt", "w", encoding="utf-8", newline="\n") as f:
         f.write(LINE + "\n")
@@ -29,6 +32,10 @@ def main() -> int:
     if data != (LINE + "\n").encode("utf-8"):
         print("invalid: round-trip mismatch", file=sys.stderr)
         return 1
+    with open("/output/entry.txt", "r", encoding="utf-8") as f:
+        if f.read().rstrip("\n") != LINE:
+            print("invalid: round-trip text mismatch", file=sys.stderr)
+            return 1
     print(f"wrote /output/entry.txt ({len(LINE)} chars)")
     print(f"sha256: {hashlib.sha256(data).hexdigest()}")
     return 0
